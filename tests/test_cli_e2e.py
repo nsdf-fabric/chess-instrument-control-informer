@@ -1,16 +1,17 @@
-"""Test that verifies CLI works end-to-end with the example config."""
+"""Test that verifies CLI works end-to-end."""
 
 import subprocess
 import time
+from pathlib import Path
 
 import h5py
 
 
-def test_cli_with_example_config(tmp_path):
-    """Test the CLI runs successfully with random_sampling config."""
-    # Create a test config pointing to test files
+def test_cli_with_config_file(tmp_path, realistic_full_file):
+    """Test the CLI runs successfully with a config file."""
+    # Create a test config pointing to the fixture file
     config_content = f"""
-full_file: ./data/strain_map.nxs
+full_file: {realistic_full_file}
 new_file: {tmp_path}/test_output.nxs
 entry: v8-p3-10s-0deg_dataset1_strainanalysis
 detector_ids:
