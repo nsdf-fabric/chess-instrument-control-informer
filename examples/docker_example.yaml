@@ -1,0 +1,23 @@
+# Docker example: Random sampling from full HDF5 file
+# This config uses absolute paths that will be mounted in the container
+
+full_file: /data/strain_map.nxs
+new_file: /output/new_strain_map.nxs
+entry: v8-p3-10s-0deg_dataset1_strainanalysis
+detector_ids:
+  - "0"
+  - "10"
+  - "2"
+fit: uniform_fit
+hkls:
+  - "2_2_0"
+  - "2_2_2"
+  - "4_0_0"
+data_group: centers
+dataset_names:
+  - labx
+  - labz
+  - values
+loc_dir: /data/exp_01
+initial_count: 5
+seed: 42

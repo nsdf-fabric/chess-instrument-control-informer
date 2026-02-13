@@ -1,0 +1,26 @@
+# Example: User-specified initial points
+# This config will populate the new file with specific points you provide
+# then watch for new location files to add more data
+
+full_file: ./data/strain_map.nxs
+new_file: ./output/new_strain_map.nxs
+entry: v8-p3-10s-0deg_dataset1_strainanalysis
+detector_ids:
+  - 0
+  - 10
+  - 2
+fit: uniform_fit
+hkls:
+  - "2_2_0"
+  - "2_2_2"
+  - "4_0_0"
+data_group: centers
+dataset_names:
+  - labx
+  - labz
+  - values
+loc_dir: ./data/exp_01
+initial_points:
+  - [0.0, 0.0]
+  - [10.5, -20.3]
+  - [-47.33, -242.5]

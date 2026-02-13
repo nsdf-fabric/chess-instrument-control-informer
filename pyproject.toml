@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chess-instrument-control-informer"
+version = "0.1.0"
+description = "CHESS watcher for instrument control files"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "h5py>=3.8",
+    "numpy>=1.23",
+    "PyYAML>=6.0",
+    "watchdog>=3.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4",
+]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+chess-instrument-control-informer = "chess_instrument_control_informer.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.1.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
