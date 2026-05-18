@@ -1,5 +1,7 @@
 """Pytest fixtures for chess-instrument-control-informer tests."""
 
+import json
+
 import h5py
 import numpy as np
 import pytest
@@ -88,4 +90,27 @@ def empty_new_file(tmp_path):
         centers.create_dataset("labx", shape=(0,), maxshape=(None,), dtype=np.float64)
         centers.create_dataset("labz", shape=(0,), maxshape=(None,), dtype=np.float64)
         centers.create_dataset("values", shape=(0,), maxshape=(None,), dtype=np.float64)
+    return path
+
+
+@pytest.fixture
+def simple_full_json(tmp_path):
+    """Create a flat reduced JSON file with CHESS-like list-valued result keys."""
+    path = tmp_path / "full_reduced_data.json"
+    data = {
+        "labx": [1.0, 2.0, 3.0],
+        "labz": [10.0, 20.0, 30.0],
+        "0/data/norm": [100.0, 200.0, 300.0],
+        "0/data/uniform_strain": [0.1, float("nan"), 0.3],
+        "0/uniform_fit/results/success": [True, False, True],
+        "0/uniform_fit/results/included_peaks": [
+            [True, False],
+            [False, True],
+            [True, True],
+        ],
+        "0/uniform_fit/4_4_0/centers/values": [114.1, float("nan"), 114.3],
+        "short_values": [1.0],
+        "metadata": {"example": True},
+    }
+    path.write_text(json.dumps(data, allow_nan=True), encoding="utf-8")
     return path

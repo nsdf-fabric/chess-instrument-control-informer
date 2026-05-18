@@ -1,0 +1,14 @@
+# Example: No initial sampling, only watch a directory in JSON mode
+# This config creates an empty reduced JSON file and appends rows from new
+# location files.
+
+source_format: json
+
+full_file: ./data/full_reduced_data.json
+new_file: ./output/reduced_data.json
+
+labx_key: labx
+labz_key: labz
+copy_all_json_keys: true
+
+loc_dir: ./data/exp_01

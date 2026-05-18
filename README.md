@@ -19,13 +19,26 @@ uv run pytest tests/
 
 ## Usage
 
+The informer supports two source formats:
+
+- `hdf5` - default, backward-compatible Nexus/HDF5 behavior
+- `json` - explicit flat reduced JSON mode for downstream stream-results monitoring
+
 ### Using a config file (recommended)
 
 ```bash
 uv run chess-instrument-control-informer --config examples/random_sampling.yaml
 ```
 
+For JSON mode:
+
+```bash
+uv run chess-instrument-control-informer --config examples/json_random_sampling.yaml
+```
+
 ### Using command-line arguments
+
+HDF5 mode remains the default:
 
 ```bash
 uv run chess-instrument-control-informer \
@@ -38,6 +51,28 @@ uv run chess-instrument-control-informer \
   --loc-dir ./data/exp_01 \
   --initial-count 5
 ```
+
+JSON mode must be requested explicitly:
+
+```bash
+uv run chess-instrument-control-informer \
+  --source-format json \
+  --full-file ./data/full_reduced_data.json \
+  --new-file ./output/reduced_data.json \
+  --labx-key labx \
+  --labz-key labz \
+  --loc-dir ./data/exp_01 \
+  --initial-count 5 \
+  --seed 42
+```
+
+In JSON mode the full input file is a flat dictionary with top-level coordinate
+arrays such as `labx` and `labz`. The informer creates a new JSON file with all
+list-valued keys present as empty arrays, then appends requested `labx`/`labz`
+coordinates from initial sampling or location files. Other list-valued keys copy
+the value from the nearest row in the full JSON file. JSON output is written
+atomically and preserves `NaN` values so the downstream data-service can monitor
+the file without reading partial writes.
 
 See [examples/](examples/) for more configuration examples.
 
