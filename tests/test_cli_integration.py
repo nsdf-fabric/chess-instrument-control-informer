@@ -1,3 +1,5 @@
+import json
+
 import h5py
 
 from chess_instrument_control_informer.config import Config
@@ -35,3 +37,45 @@ def test_run_creates_output_directory(tmp_path, simple_full_file):
         assert len(centers["labx"]) == 2
         assert len(centers["labz"]) == 2
         assert len(centers["values"]) == 2
+
+
+def test_run_json_creates_output_and_initial_points(tmp_path, simple_full_json):
+    new_path = tmp_path / "output" / "reduced_data.json"
+
+    config = Config(
+        full_file=str(simple_full_json),
+        new_file=str(new_path),
+        source_format="json",
+        initial_count=2,
+        seed=42,
+    )
+
+    run(config)
+
+    data = json.loads(new_path.read_text(encoding="utf-8"))
+    assert len(data["labx"]) == 2
+    assert len(data["labz"]) == 2
+    assert len(data["0/data/norm"]) == 2
+    assert data["metadata"] == {"example": True}
+
+
+def test_run_json_processes_existing_locations(tmp_path, simple_full_json, monkeypatch):
+    new_path = tmp_path / "output" / "reduced_data.json"
+    loc_dir = tmp_path / "loc"
+    loc_dir.mkdir()
+    (loc_dir / "loc001.txt").write_text("labx labz\n2.1 20.1\n", encoding="utf-8")
+
+    config = Config(
+        full_file=str(simple_full_json),
+        new_file=str(new_path),
+        source_format="json",
+        loc_dir=str(loc_dir),
+    )
+
+    monkeypatch.setattr("chess_instrument_control_informer.cli.watch_directory", lambda *args: None)
+    run(config)
+
+    data = json.loads(new_path.read_text(encoding="utf-8"))
+    assert data["labx"] == [2.1]
+    assert data["labz"] == [20.1]
+    assert data["0/data/norm"] == [200.0]
