@@ -50,6 +50,11 @@ uv run chess-instrument-control-informer \
   --hkls 2_2_0,2_2_2,4_0_0 \
   --loc-dir ./data/exp_01 \
   --initial-count 5
+
+# Optional: simulate per-measurement latency
+uv run chess-instrument-control-informer \
+  --config examples/random_sampling.yaml \
+  --measurement-delay-seconds 2.0
 ```
 
 JSON mode must be requested explicitly:
@@ -75,6 +80,28 @@ atomically and preserves `NaN` values so the downstream data-service can monitor
 the file without reading partial writes.
 
 See [examples/](examples/) for more configuration examples.
+
+## Simulated Measurement Delay
+
+You can delay processing of each new location file (to simulate measurement time)
+using any of these knobs:
+
+- YAML config key: `measurement_delay_seconds`
+- CLI flag: `--measurement-delay-seconds`
+- Environment variable: `CHESS_MEASUREMENT_DELAY_SECONDS`
+
+Precedence is: CLI > environment variable > config file.
+
+Examples:
+
+```bash
+CHESS_MEASUREMENT_DELAY_SECONDS=1.5 uv run chess-instrument-control-informer --config examples/random_sampling.yaml
+```
+
+```yaml
+# in config.yaml
+measurement_delay_seconds: 1.5
+```
 
 ## Docker
 

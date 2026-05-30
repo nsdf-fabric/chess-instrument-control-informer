@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
+import time
 from typing import List, Optional, Tuple
 
 from .config import Config, load_config, merge_config
@@ -48,6 +50,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--initial-count", type=int, help="Random initial sample count")
     parser.add_argument("--seed", type=int, help="Random seed")
+    parser.add_argument(
+        "--measurement-delay-seconds",
+        type=float,
+        help=(
+            "Delay (seconds) to wait before processing each new location file. "
+            "Can also be provided via CHESS_MEASUREMENT_DELAY_SECONDS."
+        ),
+    )
     return parser
 
 
@@ -78,7 +88,17 @@ def main() -> None:
         initial_points=_parse_points_arg(args.initial_points),
         initial_count=args.initial_count,
         seed=args.seed,
+        measurement_delay_seconds=args.measurement_delay_seconds,
     )
+
+    try:
+        delay_seconds = _resolve_measurement_delay_seconds(
+            config.measurement_delay_seconds,
+            args.measurement_delay_seconds,
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
+    config = merge_config(config, measurement_delay_seconds=delay_seconds)
 
     run(config)
 
@@ -195,6 +215,8 @@ def _handle_location(path: str, config: Config) -> None:
     points = parse_location_file(path)
     if not points:
         return
+    if config.measurement_delay_seconds > 0:
+        time.sleep(config.measurement_delay_seconds)
     if config.source_format == "json":
         append_interpolated_json_points(
             full_path=config.full_file,
@@ -265,7 +287,28 @@ def _config_from_args(args: argparse.Namespace) -> Config:
         initial_count=args.initial_count,
         seed=args.seed,
         source_format=source_format,
+        measurement_delay_seconds=args.measurement_delay_seconds or 0.0,
     )
+
+
+def _resolve_measurement_delay_seconds(config_value: float, cli_value: Optional[float]) -> float:
+    if cli_value is not None:
+        delay = cli_value
+    else:
+        env_value = os.getenv("CHESS_MEASUREMENT_DELAY_SECONDS")
+        if env_value is None or env_value.strip() == "":
+            delay = config_value
+        else:
+            try:
+                delay = float(env_value)
+            except ValueError as exc:
+                raise ValueError(
+                    "CHESS_MEASUREMENT_DELAY_SECONDS must be a number"
+                ) from exc
+
+    if delay < 0:
+        raise ValueError("measurement delay must be >= 0")
+    return delay
 
 
 def _validate_hdf5_config(config: Config) -> None:
