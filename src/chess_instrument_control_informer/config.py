@@ -25,6 +25,7 @@ class Config:
     labx_key: str = "labx"
     labz_key: str = "labz"
     copy_all_json_keys: bool = True
+    measurement_delay_seconds: float = 0.0
 
 
 def load_config(path: str) -> Config:
@@ -53,6 +54,7 @@ def _config_from_dict(data: dict) -> Config:
         labx_key=str(data.get("labx_key", "labx")),
         labz_key=str(data.get("labz_key", "labz")),
         copy_all_json_keys=bool(data.get("copy_all_json_keys", True)),
+        measurement_delay_seconds=float(data.get("measurement_delay_seconds", 0.0)),
     )
 
 
